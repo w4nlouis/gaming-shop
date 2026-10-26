@@ -27,6 +27,16 @@ class User(UserMixin, db.Model):
     def check_password(self, pw):
         return check_password_hash(self.password_hash, pw)
 
+class Station(db.Model):
+    id=db.Column(db.Integer, primary_key=True)
+    name=db.Column(db.String(40),nullable=False)
+    console=db.Column(db.String(10))
+    active=db.Column(db.Boolean, default=True)
+class Game(db.Model):
+    id=db.Column(db.Integer, primary_key=True)
+    title=db.Column(db.String(80),nullable=False)
+    active=db.Column(db.Boolean,default=True)
+
 
 @login_manager.user_loader
 def load_user(user_id):
