@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from functools import wraps
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
@@ -42,6 +43,14 @@ class Game(db.Model):
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
+def admin_required(fn):
+    @wraps(fn)
+    @login_required
+    def wrapper(*args, **kwargs):
+        if current_user.role != "admin":
+            abort(403)
+        return fn(*args, **kwargs)
+    return wrapper
 
 @app.route("/")
 def home():
@@ -76,6 +85,17 @@ def logout():
 def dashboard():
     return f"Welcome {current_user.name} ({current_user.role})"
 
+@app.route("/admin/games", methods=["GET", "POST"])
+@admin_required
+def admin_games():
+    if request.method == "POST":
+        title = request.form["title"].strip()
+        if title:
+            db.session.add(Game(title=title))
+            db.session.commit()
+        return redirect(url_for("admin_games"))
+    games = Game.query.order_by(Game.title).all()
+    return render_template("admin_games.html", games=games)
 
 with app.app_context():
     db.create_all()

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Games</title>
+    </head>
+    <body>
+        <h1>Games</h1>
+        <ul>
+            {% for g in games %}<li>{{g.title}}</li>{% endfor %}
+        </ul>
+        <form method="post">
+            <input name="title" placeholder="New game title" required>
+            <button>Add game</button>
+        </form>
+    </body>
+</html>
